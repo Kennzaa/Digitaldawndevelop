@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -22,6 +22,8 @@ from auth import (
     hash_password,
     verify_password,
     create_token,
+    set_auth_cookie,
+    clear_auth_cookie,
     get_current_user,
     get_current_user_optional,
     require_admin,
@@ -119,7 +121,7 @@ async def get_services():
 
 # ---------------- Routes: auth ----------------
 @api_router.post("/auth/register", response_model=AuthResponse)
-async def register(payload: UserRegister):
+async def register(payload: UserRegister, response: Response):
     email = payload.email.lower().strip()
     existing = await db.users.find_one({"email": email})
     if existing:
@@ -136,6 +138,7 @@ async def register(payload: UserRegister):
     await db.users.insert_one(dict(user_doc))
 
     token = create_token(user_doc["id"], user_doc["role"])
+    set_auth_cookie(response, token)
     public = UserPublic(
         id=user_doc["id"],
         name=user_doc["name"],
@@ -147,16 +150,23 @@ async def register(payload: UserRegister):
 
 
 @api_router.post("/auth/login", response_model=AuthResponse)
-async def login(payload: UserLogin):
+async def login(payload: UserLogin, response: Response):
     email = payload.email.lower().strip()
     user = await db.users.find_one({"email": email})
     if not user or not verify_password(payload.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
     token = create_token(user["id"], user.get("role", "customer"))
+    set_auth_cookie(response, token)
     user = parse_dates(serialize_doc(user))
     public = UserPublic(**user)
     return AuthResponse(token=token, user=public)
+
+
+@api_router.post("/auth/logout")
+async def logout(response: Response):
+    clear_auth_cookie(response)
+    return {"ok": True}
 
 
 @api_router.get("/auth/me", response_model=UserPublic)

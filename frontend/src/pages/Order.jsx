@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ServiceCard from "@/components/services/ServiceCard";
@@ -50,13 +50,13 @@ export default function Order() {
 
   const updateField = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const buildMessage = () => {
+  const buildMessage = useCallback(() => {
     const list = selectedServices.map((s) => `• ${s.title}`).join("\n");
     return `Halo Digital Dawn Develop, saya ingin order:\n${list || "(belum pilih layanan)"}\n\nNama: ${form.name}\nEmail: ${form.email}\nWhatsApp: ${form.phone}\nBrand/Perusahaan: ${form.company}\nBudget: ${form.budget}\nDeadline: ${form.deadline}\n\nDetail: ${form.message}`;
-  };
+  }, [selectedServices, form]);
 
-  const waLink = useMemo(() => `https://wa.me/${CONTACT.whatsappIntl}?text=${encodeURIComponent(buildMessage())}`, [selectedServices, form]);
-  const mailLink = useMemo(() => `mailto:${CONTACT.email}?subject=${encodeURIComponent("Order Baru - " + (form.name || "Customer"))}&body=${encodeURIComponent(buildMessage())}`, [selectedServices, form]);
+  const waLink = useMemo(() => `https://wa.me/${CONTACT.whatsappIntl}?text=${encodeURIComponent(buildMessage())}`, [buildMessage]);
+  const mailLink = useMemo(() => `mailto:${CONTACT.email}?subject=${encodeURIComponent("Order Baru - " + (form.name || "Customer"))}&body=${encodeURIComponent(buildMessage())}`, [buildMessage, form.name]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

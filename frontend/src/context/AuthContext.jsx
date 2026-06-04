@@ -5,32 +5,24 @@ const AuthContext = createContext(null);
 
 export const useAuth = () => useContext(AuthContext);
 
+const USER_CACHE_KEY = "ddd_user"; // non-sensitive profile cache only (no token)
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("ddd_token"));
   const [loading, setLoading] = useState(true);
 
-  const persist = useCallback((tkn, usr) => {
-    if (tkn) {
-      localStorage.setItem("ddd_token", tkn);
-      setToken(tkn);
-    }
-    if (usr) {
-      localStorage.setItem("ddd_user", JSON.stringify(usr));
-      setUser(usr);
-    }
-  }, []);
-
+  // Restore session purely from the httpOnly cookie via /auth/me.
   const fetchMe = useCallback(async () => {
     try {
       const { data } = await api.get("/auth/me");
       setUser(data);
-      localStorage.setItem("ddd_user", JSON.stringify(data));
-    } catch (e) {
-      // token invalid
-      localStorage.removeItem("ddd_token");
-      localStorage.removeItem("ddd_user");
-      setToken(null);
+      localStorage.setItem(USER_CACHE_KEY, JSON.stringify(data));
+    } catch (error) {
+      // 401 simply means no valid session cookie — clear any stale cache.
+      if (!error?.response || error.response.status !== 401) {
+        console.error("Auth session check failed:", error);
+      }
+      localStorage.removeItem(USER_CACHE_KEY);
       setUser(null);
     } finally {
       setLoading(false);
@@ -38,39 +30,56 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const cached = localStorage.getItem("ddd_user");
+    // Optimistically show cached profile for snappy UX, then validate via cookie.
+    const cached = localStorage.getItem(USER_CACHE_KEY);
     if (cached) {
-      try { setUser(JSON.parse(cached)); } catch (e) { /* ignore */ }
+      try {
+        setUser(JSON.parse(cached));
+      } catch (error) {
+        console.warn("Failed to parse cached user profile:", error);
+        localStorage.removeItem(USER_CACHE_KEY);
+      }
     }
-    if (token) {
-      fetchMe();
-    } else {
-      setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchMe();
+  }, [fetchMe]);
+
+  const login = useCallback(async (email, password) => {
+    const { data } = await api.post("/auth/login", { email, password });
+    setUser(data.user);
+    localStorage.setItem(USER_CACHE_KEY, JSON.stringify(data.user));
+    return data.user;
   }, []);
 
-  const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
-    persist(data.token, data.user);
-    return data.user;
-  };
-
-  const register = async (name, email, password) => {
+  const register = useCallback(async (name, email, password) => {
     const { data } = await api.post("/auth/register", { name, email, password });
-    persist(data.token, data.user);
+    setUser(data.user);
+    localStorage.setItem(USER_CACHE_KEY, JSON.stringify(data.user));
     return data.user;
-  };
+  }, []);
 
-  const logout = () => {
-    localStorage.removeItem("ddd_token");
-    localStorage.removeItem("ddd_user");
-    setToken(null);
-    setUser(null);
-  };
+  const logout = useCallback(async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout request failed:", error);
+    } finally {
+      localStorage.removeItem(USER_CACHE_KEY);
+      setUser(null);
+    }
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAuthenticated: !!token, isAdmin: user?.role === "admin" }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        isAuthenticated: !!user,
+        isAdmin: user?.role === "admin",
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

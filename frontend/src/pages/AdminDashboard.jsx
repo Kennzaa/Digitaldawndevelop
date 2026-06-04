@@ -114,7 +114,7 @@ export default function AdminDashboard() {
                         <p className="text-xs text-slate-500 truncate">{o.email}</p>
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        {o.services.slice(0, 2).map((s, i) => <span key={i} className="text-xs rounded-full bg-blue-50 text-blue-700 px-2 py-0.5">{s}</span>)}
+                        {o.services.slice(0, 2).map((s, i) => <span key={`${o.id}-tag-${i}`} className="text-xs rounded-full bg-blue-50 text-blue-700 px-2 py-0.5">{s}</span>)}
                         {o.services.length > 2 && <span className="text-xs text-slate-400">+{o.services.length - 2}</span>}
                       </div>
                       <span className="text-xs text-slate-500">{fmtDate(o.created_at)}</span>
@@ -157,7 +157,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Layanan</p>
-                <div className="flex flex-wrap gap-1.5">{detail.services.map((s, i) => <span key={i} className="text-xs rounded-full bg-blue-50 text-blue-700 px-3 py-1">{s}</span>)}</div>
+                <div className="flex flex-wrap gap-1.5">{detail.services.map((s, i) => <span key={`${detail.id}-dsvc-${i}`} className="text-xs rounded-full bg-blue-50 text-blue-700 px-3 py-1">{s}</span>)}</div>
               </div>
               {detail.message && (
                 <div>

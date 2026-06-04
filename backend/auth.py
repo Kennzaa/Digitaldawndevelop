@@ -2,12 +2,14 @@ import os
 import bcrypt
 import jwt
 from datetime import datetime, timezone, timedelta
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 JWT_SECRET = os.environ.get("JWT_SECRET", "dev_secret")
 JWT_ALG = "HS256"
 JWT_EXP_DAYS = 30
+COOKIE_NAME = "ddd_token"
+COOKIE_MAX_AGE = JWT_EXP_DAYS * 24 * 3600
 
 security = HTTPBearer(auto_error=False)
 
@@ -42,23 +44,50 @@ def decode_token(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
+def set_auth_cookie(response: Response, token: str) -> None:
+    """Store the JWT in a secure, httpOnly cookie (mitigates XSS token theft)."""
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=token,
+        max_age=COOKIE_MAX_AGE,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        path="/",
+    )
+
+
+def clear_auth_cookie(response: Response) -> None:
+    response.delete_cookie(key=COOKIE_NAME, path="/")
+
+
+def _extract_token(request: Request, creds: HTTPAuthorizationCredentials) -> str | None:
+    """Prefer Authorization Bearer header (for API clients/tests), fall back to httpOnly cookie."""
+    if creds is not None:
+        return creds.credentials
+    return request.cookies.get(COOKIE_NAME)
+
+
 async def get_current_user(
+    request: Request,
     creds: HTTPAuthorizationCredentials = Depends(security),
 ):
-    if creds is None:
+    token = _extract_token(request, creds)
+    if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    payload = decode_token(creds.credentials)
-    return payload
+    return decode_token(token)
 
 
 async def get_current_user_optional(
+    request: Request,
     creds: HTTPAuthorizationCredentials = Depends(security),
 ):
     """Return payload if a valid token is present, else None (no error)."""
-    if creds is None:
+    token = _extract_token(request, creds)
+    if not token:
         return None
     try:
-        return decode_token(creds.credentials)
+        return decode_token(token)
     except HTTPException:
         return None
 

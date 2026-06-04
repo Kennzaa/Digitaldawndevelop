@@ -55,7 +55,7 @@ export default function MyOrders() {
                     <div className="flex-1 min-w-[200px]">
                       <div className="flex flex-wrap gap-2 mb-3">
                         {o.services.map((s, idx) => (
-                          <span key={idx} className="text-xs rounded-full bg-blue-50 text-blue-700 px-3 py-1 font-medium">{s}</span>
+                          <span key={`${o.id}-svc-${idx}`} className="text-xs rounded-full bg-blue-50 text-blue-700 px-3 py-1 font-medium">{s}</span>
                         ))}
                       </div>
                       {o.message && <p className="text-sm text-slate-600 line-clamp-2">{o.message}</p>}

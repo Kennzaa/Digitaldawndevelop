@@ -3,14 +3,12 @@ import axios from "axios";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;
 
-const api = axios.create({ baseURL: API });
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("ddd_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+// withCredentials ensures the httpOnly auth cookie is sent with requests.
+// Tokens are NEVER stored in localStorage (XSS-safe) — the server manages
+// a secure, httpOnly cookie instead.
+const api = axios.create({
+  baseURL: API,
+  withCredentials: true,
 });
 
 export default api;
