@@ -1,0 +1,109 @@
+{
+  "theme": "dark",
+  "archetype": "Archetype 4 (Swiss & High-Contrast)",
+  "vibe": "Technical, Data-Dense, Linear/Vercel Aesthetic, High Structural Clarity",
+  "typography": {
+    "heading_font": "Chivo",
+    "body_font": "IBM Plex Sans",
+    "mono_font": "JetBrains Mono",
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl font-light tracking-tighter text-zinc-50",
+      "h2": "text-2xl sm:text-3xl font-medium tracking-tight text-zinc-50",
+      "h3": "text-xl font-medium tracking-tight text-zinc-100",
+      "h4": "text-lg font-medium text-zinc-100",
+      "body": "text-sm text-zinc-400 leading-relaxed",
+      "mono_accent": "font-mono text-xs tracking-widest uppercase text-zinc-500",
+      "code_block": "font-mono text-sm bg-zinc-900 border border-zinc-800 text-zinc-300"
+    },
+    "rules": [
+      "No Inter, Open Sans, or Roboto for headings.",
+      "Metrics and numeric values (like commit counts, PRs) MUST use JetBrains Mono.",
+      "Labels (Overlines) MUST be uppercase, text-xs, tracking-widest."
+    ]
+  },
+  "colors": {
+    "background": "#09090B",
+    "surface": "#09090B",
+    "surface_hover": "#18181B",
+    "border": "#27272A",
+    "text_primary": "#FAFAFA",
+    "text_secondary": "#A1A1AA",
+    "accent_primary": "#FFFFFF",
+    "accent_primary_text": "#09090B",
+    "success_github": "#2EA043",
+    "error_issue": "#F43F5E",
+    "rules": [
+      "Avoid all purple and teal gradients.",
+      "Keep default view monochrome (black, zinc, white).",
+      "Use color EXCLUSIVELY to indicate status (e.g., green for open PR, red for issue)."
+    ]
+  },
+  "layout_and_spacing": {
+    "grid_system": "The Control Room Grid",
+    "container_padding": "p-6 md:p-8 lg:p-12",
+    "widget_gap": "gap-4 md:gap-6",
+    "rules": [
+      "Use grid-cols-1 md:grid-cols-3 lg:grid-cols-4 for dense metrics.",
+      "Every widget must have h-full to stretch uniformly.",
+      "Cards have internal padding of p-6 to prevent content collision with borders.",
+      "Optical alignment: Icons on the left of buttons should have extra visual space before text."
+    ]
+  },
+  "surface_strategies": {
+    "dashboard_cards": "Flat background (bg-zinc-950), 1px subtle border (border-zinc-800), NO shadow.",
+    "hover_state": "Slight border highlight (border-zinc-600) and bg shift (bg-zinc-900), no aggressive lift.",
+    "navigation": "Solid background (bg-zinc-950) with hard bottom border (border-zinc-800). No glassmorphism."
+  },
+  "components": {
+    "buttons": "Square or rounded-sm, high contrast. Primary: bg-white text-black hover:bg-zinc-200. Secondary: bg-transparent border border-zinc-800 text-white hover:bg-zinc-900.",
+    "inputs": "Shadcn standard but override radius to rounded-sm. border-zinc-800, focus:ring-1 focus:ring-white bg-zinc-950 text-white.",
+    "tables": "Dense layout. text-sm. Hover effect on rows. Header rows use font-mono text-xs text-zinc-500.",
+    "badges": "Minimal. border border-zinc-800 bg-zinc-900 font-mono text-xs text-zinc-300.",
+    "icons": "lucide-react (stroke-width 1.5, size 16 for inline, 20 for standalone)."
+  },
+  "interactions_and_motion": {
+    "hover": "Transition border-color and bg-color 150ms ease. Text color must always maintain APCA contrast on hover.",
+    "loading": "Use ASCII-style loaders or subtle linear indeterminate progress bars (1px height).",
+    "focus": "focus:outline-none focus:ring-1 focus:ring-white focus:ring-offset-2 focus:ring-offset-zinc-950"
+  },
+  "testing": {
+    "requirement": "ALL interactive and key informational elements MUST include a data-testid attribute.",
+    "convention": "kebab-case, role-based. Examples: data-testid='login-submit-btn', data-testid='team-card-repo-count'."
+  },
+  "media_and_assets": {
+    "login_background": {
+      "url": "https://images.unsplash.com/photo-1517241034903-9a4c3ab12f00?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTF8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGRhcmslMjBnZW9tZXRyeXxlbnwwfHx8fDE3ODA1MTk4MjB8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Abstract dark geometry for the login page background",
+      "usage": "Use with heavy opacity overlay (bg-black/80) to ensure login form legibility."
+    },
+    "team_avatars": [
+      {
+        "url": "https://images.unsplash.com/photo-1536104968055-4d61aa56f46a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwzfHxkZXZlbG9wZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3ODA1MTk4MjB8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Developer portrait 1",
+        "usage": "Use in team member lists and avatar groups."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1566753323558-f4e0952af115?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwxfHxkZXZlbG9wZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3ODA1MTk4MjB8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Developer portrait 2",
+        "usage": "Use in team member lists and avatar groups."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1604145559206-e3bce0040e2d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHw0fHxkZXZlbG9wZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3ODA1MTk4MjB8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Developer portrait 3",
+        "usage": "Use in team member lists and avatar groups."
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the JSON structure for colors and typography. The file is meant to govern the full aesthetic direction.",
+    "Do NOT use Shadcn Card component default shadows and heavy borders; override them to bg-transparent or bg-zinc-950 with 1px zinc-800 borders and NO shadows.",
+    "Implement navigation as a sticky top bar or left sidebar with solid bg, NOT blurred/glass.",
+    "Ensure all metric numbers (e.g. '12 Commits', '4 Open PRs') use the 'mono_font' (JetBrains Mono).",
+    "Avoid Vercel's default 'Inter' font. Use 'Chivo' for headers and 'IBM Plex Sans' for body.",
+    "Ensure ALL buttons, links, inputs, and metric cards have `data-testid` attributes following the format `feature-element-role`.",
+    "Use Lucide-React for all icons. Avoid importing other icon libraries to maintain consistency.",
+    "Do not use generic placeholders for images. Use the URLs provided in the `media_and_assets` section.",
+    "Build standard React (.js/.jsx) components, NOT Typescript. The project is Javascript based.",
+    "Ensure all interactive components and layouts are fully responsive (mobile-first)."
+  ]
+}
