@@ -1,0 +1,272 @@
+from fastapi import FastAPI, APIRouter, HTTPException, Depends
+from dotenv import load_dotenv
+from starlette.middleware.cors import CORSMiddleware
+from motor.motor_asyncio import AsyncIOMotorClient
+import os
+import logging
+import uuid
+from pathlib import Path
+from datetime import datetime, timezone
+from typing import List, Optional
+
+from models import (
+    UserRegister,
+    UserLogin,
+    UserPublic,
+    AuthResponse,
+    OrderCreate,
+    OrderStatusUpdate,
+    Order,
+)
+from auth import (
+    hash_password,
+    verify_password,
+    create_token,
+    get_current_user,
+    get_current_user_optional,
+    require_admin,
+)
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / ".env")
+
+# MongoDB connection
+mongo_url = os.environ["MONGO_URL"]
+client = AsyncIOMotorClient(mongo_url)
+db = client[os.environ["DB_NAME"]]
+
+app = FastAPI(title="Digital Dawn Develop API")
+api_router = APIRouter(prefix="/api")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
+# ---------------- Helpers ----------------
+def serialize_doc(doc: dict) -> dict:
+    """Make a Mongo doc JSON-safe (drop _id, datetimes -> iso)."""
+    if not doc:
+        return doc
+    doc.pop("_id", None)
+    for k, v in list(doc.items()):
+        if isinstance(v, datetime):
+            doc[k] = v.isoformat()
+    return doc
+
+
+def parse_dates(doc: dict) -> dict:
+    if doc and isinstance(doc.get("created_at"), str):
+        try:
+            doc["created_at"] = datetime.fromisoformat(doc["created_at"])
+        except Exception:
+            pass
+    return doc
+
+
+# ---------------- Static services config ----------------
+SERVICES = [
+    {
+        "id": "landing-page",
+        "title": "Landing Page Website",
+        "tagline": "High-converting, fast & beautiful pages",
+        "icon": "Globe",
+        "color": "#3B82F6",
+    },
+    {
+        "id": "content-creator",
+        "title": "Content Creator",
+        "tagline": "Scroll-stopping content that grows your brand",
+        "icon": "Sparkles",
+        "color": "#0EA5E9",
+    },
+    {
+        "id": "designer-reels-banner",
+        "title": "Designer Reels & Banner",
+        "tagline": "Cinematic reels and striking banners",
+        "icon": "Clapperboard",
+        "color": "#6366F1",
+    },
+    {
+        "id": "whatsapp-business",
+        "title": "WhatsApp Perusahaan",
+        "tagline": "Professional WhatsApp Business setup",
+        "icon": "MessageCircle",
+        "color": "#22D3EE",
+    },
+    {
+        "id": "social-ads",
+        "title": "Ads Instagram, TikTok & Facebook",
+        "tagline": "Targeted ad campaigns that drive results",
+        "icon": "Megaphone",
+        "color": "#2563EB",
+    },
+]
+
+
+# ---------------- Routes: meta ----------------
+@api_router.get("/")
+async def root():
+    return {"message": "Digital Dawn Develop API", "status": "ok"}
+
+
+@api_router.get("/services")
+async def get_services():
+    return SERVICES
+
+
+# ---------------- Routes: auth ----------------
+@api_router.post("/auth/register", response_model=AuthResponse)
+async def register(payload: UserRegister):
+    email = payload.email.lower().strip()
+    existing = await db.users.find_one({"email": email})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    user_doc = {
+        "id": str(uuid.uuid4()),
+        "name": payload.name.strip(),
+        "email": email,
+        "password_hash": hash_password(payload.password),
+        "role": "customer",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.users.insert_one(dict(user_doc))
+
+    token = create_token(user_doc["id"], user_doc["role"])
+    public = UserPublic(
+        id=user_doc["id"],
+        name=user_doc["name"],
+        email=user_doc["email"],
+        role=user_doc["role"],
+        created_at=datetime.fromisoformat(user_doc["created_at"]),
+    )
+    return AuthResponse(token=token, user=public)
+
+
+@api_router.post("/auth/login", response_model=AuthResponse)
+async def login(payload: UserLogin):
+    email = payload.email.lower().strip()
+    user = await db.users.find_one({"email": email})
+    if not user or not verify_password(payload.password, user.get("password_hash", "")):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    token = create_token(user["id"], user.get("role", "customer"))
+    user = parse_dates(serialize_doc(user))
+    public = UserPublic(**user)
+    return AuthResponse(token=token, user=public)
+
+
+@api_router.get("/auth/me", response_model=UserPublic)
+async def me(payload: dict = Depends(get_current_user)):
+    user = await db.users.find_one({"id": payload["sub"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user = parse_dates(serialize_doc(user))
+    return UserPublic(**user)
+
+
+# ---------------- Routes: orders ----------------
+@api_router.post("/orders", response_model=Order)
+async def create_order(
+    payload: OrderCreate, user: Optional[dict] = Depends(get_current_user_optional)
+):
+    order = Order(**payload.model_dump())
+    if user:
+        order.user_id = user.get("sub")
+    doc = order.model_dump()
+    doc["created_at"] = doc["created_at"].isoformat()
+    await db.orders.insert_one(dict(doc))
+    return order
+
+
+@api_router.get("/orders/me", response_model=List[Order])
+async def my_orders(payload: dict = Depends(get_current_user)):
+    user = await db.users.find_one({"id": payload["sub"]})
+    email = user.get("email") if user else None
+    query = {"$or": [{"user_id": payload["sub"]}]}
+    if email:
+        query["$or"].append({"email": email})
+    orders = await db.orders.find(query).sort("created_at", -1).to_list(1000)
+    return [Order(**parse_dates(serialize_doc(o))) for o in orders]
+
+
+# ---------------- Routes: admin ----------------
+@api_router.get("/admin/orders", response_model=List[Order])
+async def admin_orders(
+    status_filter: Optional[str] = None, _admin: dict = Depends(require_admin)
+):
+    query = {}
+    if status_filter and status_filter != "all":
+        query["status"] = status_filter
+    orders = await db.orders.find(query).sort("created_at", -1).to_list(2000)
+    return [Order(**parse_dates(serialize_doc(o))) for o in orders]
+
+
+@api_router.get("/admin/stats")
+async def admin_stats(_admin: dict = Depends(require_admin)):
+    total = await db.orders.count_documents({})
+    new = await db.orders.count_documents({"status": "new"})
+    in_progress = await db.orders.count_documents({"status": "in_progress"})
+    done = await db.orders.count_documents({"status": "done"})
+    return {"total": total, "new": new, "in_progress": in_progress, "done": done}
+
+
+@api_router.patch("/admin/orders/{order_id}", response_model=Order)
+async def update_order_status(
+    order_id: str, payload: OrderStatusUpdate, _admin: dict = Depends(require_admin)
+):
+    result = await db.orders.find_one_and_update(
+        {"id": order_id},
+        {"$set": {"status": payload.status}},
+        return_document=True,
+    )
+    if not result:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return Order(**parse_dates(serialize_doc(result)))
+
+
+# Include router
+app.include_router(api_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.on_event("startup")
+async def seed_admin():
+    """Seed an admin account from env vars (idempotent)."""
+    admin_email = os.environ.get("ADMIN_EMAIL", "").lower().strip()
+    admin_pass = os.environ.get("ADMIN_PASSWORD", "")
+    if not admin_email or not admin_pass:
+        return
+    existing = await db.users.find_one({"email": admin_email})
+    if existing:
+        if existing.get("role") != "admin":
+            await db.users.update_one(
+                {"email": admin_email}, {"$set": {"role": "admin"}}
+            )
+        return
+    await db.users.insert_one(
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Admin",
+            "email": admin_email,
+            "password_hash": hash_password(admin_pass),
+            "role": "admin",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+    logger.info("Seeded admin account: %s", admin_email)
+
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()
