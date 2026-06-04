@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 import { Menu, Sparkles, LayoutDashboard, LogOut, User, ClipboardList } from "lucide-react";
 
 const NavLinks = ({ onNavigate }) => (
@@ -41,6 +42,7 @@ export const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
             {!isAuthenticated ? (
               <>
                 <Button asChild variant="ghost" className="text-slate-700" data-testid="nav-login-link">
@@ -72,7 +74,8 @@ export const Navbar = () => {
           </div>
 
           {/* Mobile */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" data-testid="nav-mobile-menu-button"><Menu className="h-6 w-6" /></Button>

@@ -5,7 +5,68 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
-// Vanilla Three.js hero (no R3F) for maximum compatibility + bloom glow.
+// Faithful WebGL port of the original "hero-futuristic" TSL effect:
+// depth-mapped 3D render + tiled dot grid + scanning flow wave + bloom.
+// Scan color tuned to brand cyan/blue instead of red.
+
+const VERT = `
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const FRAG = `
+  uniform sampler2D uMap;
+  uniform sampler2D uDepth;
+  uniform vec2 uPointer;
+  uniform float uProgress;
+  uniform float uOpacity;
+  uniform vec3 uScan;
+  varying vec2 vUv;
+
+  float hash(vec2 p){
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+  }
+
+  void main(){
+    vec2 uv = vUv;
+    float strength = 0.012;
+    float depthR = texture2D(uDepth, uv).r;
+
+    // pointer parallax driven by depth
+    vec2 mapUv = uv + depthR * uPointer * strength;
+    vec4 tMap = texture2D(uMap, mapUv);
+
+    // tiled dot grid
+    vec2 tUv = uv;
+    float tiling = 120.0;
+    vec2 tiledUv = mod(tUv * tiling, 2.0) - 1.0;
+    float brightness = hash(floor(tUv * tiling / 2.0));
+    float dist = length(tiledUv);
+    float dotv = smoothstep(0.5, 0.49, dist) * brightness;
+
+    // scanning flow wave following depth contours
+    float flow = 1.0 - smoothstep(0.0, 0.025, abs(depthR - uProgress));
+    vec3 mask = vec3(dotv * flow) * uScan;
+
+    // blue tint on the base render so bloom glows blue
+    vec3 base = tMap.rgb * vec3(0.62, 0.82, 1.30);
+
+    // blendScreen(base, mask)
+    vec3 final = 1.0 - (1.0 - base) * (1.0 - mask);
+
+    // circular vignette to melt edges into the dark hero
+    float d = length(vUv - 0.5);
+    float vig = 1.0 - smoothstep(0.34, 0.5, d);
+
+    gl_FragColor = vec4(final, tMap.a * uOpacity * vig);
+  }
+`;
+
 const ThreeHero = () => {
   const mountRef = useRef(null);
 
@@ -13,10 +74,9 @@ const ThreeHero = () => {
     const mount = mountRef.current;
     if (!mount) return;
 
-    let renderer;
-    let frameId;
-    let composer;
-    const cleanupFns = [];
+    let renderer, composer, frameId;
+    const cleanup = [];
+    let disposed = false;
 
     try {
       const width = mount.clientWidth || window.innerWidth;
@@ -32,109 +92,109 @@ const ThreeHero = () => {
       renderer.setClearColor(0x000000, 0);
       mount.appendChild(renderer.domElement);
 
-      // Lights
-      scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-      const p1 = new THREE.PointLight(0x67e8f9, 2.4, 100);
-      p1.position.set(5, 5, 5);
-      scene.add(p1);
-      const p2 = new THREE.PointLight(0x2563eb, 1.8, 100);
-      p2.position.set(-5, -3, 2);
-      scene.add(p2);
-      const dir = new THREE.DirectionalLight(0xffffff, 1.0);
-      dir.position.set(0, 4, 6);
-      scene.add(dir);
+      const uniforms = {
+        uMap: { value: null },
+        uDepth: { value: null },
+        uPointer: { value: new THREE.Vector2(0, 0) },
+        uProgress: { value: 0 },
+        uOpacity: { value: 0 },
+        uScan: { value: new THREE.Vector3(0.4, 3.2, 7.5) }, // bright cyan/blue for bloom
+      };
 
-      const group = new THREE.Group();
-      scene.add(group);
-
-      // Central wireframe orb
-      const orb = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(1.3, 1),
-        new THREE.MeshStandardMaterial({ color: 0x2563eb, emissive: 0x1d4ed8, emissiveIntensity: 1.0, metalness: 0.7, roughness: 0.2, wireframe: true })
-      );
-      group.add(orb);
-
-      // Floating glowing shapes
-      const shapeDefs = [
-        { geo: new THREE.DodecahedronGeometry(0.5, 0), color: 0x0ea5e9, pos: [2.6, 0.6, -1], speed: 1.2, emissive: 1.7 },
-        { geo: new THREE.IcosahedronGeometry(0.42, 0), color: 0x67e8f9, pos: [-2.8, 0.9, -0.5], speed: 0.9, emissive: 1.9 },
-        { geo: new THREE.TorusGeometry(0.36, 0.14, 16, 40), color: 0x3b82f6, pos: [2.1, -1.4, 0.5], speed: 1.4, emissive: 1.6 },
-        { geo: new THREE.OctahedronGeometry(0.46, 0), color: 0x2563eb, pos: [-2.3, -1.2, 0.4], speed: 1.1, emissive: 1.7 },
-        { geo: new THREE.SphereGeometry(0.22, 24, 24), color: 0x67e8f9, pos: [0, 2.05, -0.5], speed: 1.6, emissive: 2.2 },
-        { geo: new THREE.SphereGeometry(0.18, 24, 24), color: 0x0ea5e9, pos: [1.25, 1.6, 0.8], speed: 2.0, emissive: 2.0 },
-        { geo: new THREE.TetrahedronGeometry(0.4, 0), color: 0x3b82f6, pos: [-1.3, 1.7, 0.6], speed: 1.5, emissive: 1.8 },
-      ];
-
-      const meshes = shapeDefs.map((d) => {
-        const mat = new THREE.MeshStandardMaterial({ color: d.color, emissive: d.color, emissiveIntensity: d.emissive, metalness: 0.4, roughness: 0.25 });
-        const m = new THREE.Mesh(d.geo, mat);
-        m.position.set(d.pos[0], d.pos[1], d.pos[2]);
-        m.userData = { baseY: d.pos[1], speed: d.speed, seed: Math.random() * 100 };
-        group.add(m);
-        return m;
+      const material = new THREE.ShaderMaterial({
+        vertexShader: VERT,
+        fragmentShader: FRAG,
+        uniforms,
+        transparent: true,
+        depthWrite: false,
       });
 
-      // Postprocessing: bloom
+      const geometry = new THREE.PlaneGeometry(1, 1);
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+
+      const fitPlane = () => {
+        const dist = camera.position.z;
+        const vH = 2 * Math.tan((camera.fov * Math.PI) / 180 / 2) * dist;
+        const size = vH * 1.18; // square plane, slightly larger than viewport height
+        mesh.scale.set(size, size, 1);
+      };
+      fitPlane();
+
+      // Load textures (same-origin -> no CORS issues)
+      const base = process.env.PUBLIC_URL || "";
+      const loader = new THREE.TextureLoader();
+      let loaded = 0;
+      const onAll = () => {
+        loaded += 1;
+        if (loaded >= 2) startLoop();
+      };
+      const map = loader.load(`${base}/assets/img-4.png`, onAll);
+      map.colorSpace = THREE.SRGBColorSpace;
+      const depth = loader.load(`${base}/assets/raw-4.webp`, onAll);
+      uniforms.uMap.value = map;
+      uniforms.uDepth.value = depth;
+
+      // Postprocessing bloom
       composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(scene, camera));
-      const bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.75, 0.55, 0.55);
+      const bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.95, 0.7, 0.62);
       composer.addPass(bloom);
       composer.addPass(new OutputPass());
       composer.setSize(width, height);
 
-      // Pointer parallax
-      const pointer = { x: 0, y: 0 };
-      const onPointerMove = (e) => {
+      // pointer
+      const pointer = new THREE.Vector2(0, 0);
+      const onMove = (e) => {
         pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
         pointer.y = -((e.clientY / window.innerHeight) * 2 - 1);
       };
-      window.addEventListener("pointermove", onPointerMove);
-      cleanupFns.push(() => window.removeEventListener("pointermove", onPointerMove));
+      window.addEventListener("pointermove", onMove);
+      cleanup.push(() => window.removeEventListener("pointermove", onMove));
 
       const clock = new THREE.Clock();
-      const animate = () => {
-        const t = clock.getElapsedTime();
-        orb.rotation.y = t * 0.25;
-        orb.rotation.z = Math.sin(t * 0.3) * 0.15;
-        meshes.forEach((m) => {
-          m.position.y = m.userData.baseY + Math.sin(t * m.userData.speed + m.userData.seed) * 0.35;
-          m.rotation.x = t * 0.3;
-          m.rotation.y = t * 0.24;
-        });
-        group.rotation.y += (pointer.x * 0.4 - group.rotation.y) * 0.05;
-        group.rotation.x += (-pointer.y * 0.3 - group.rotation.x) * 0.05;
-        composer.render();
-        frameId = requestAnimationFrame(animate);
+      const startLoop = () => {
+        if (disposed || frameId) return;
+        const animate = () => {
+          const t = clock.getElapsedTime();
+          uniforms.uProgress.value = Math.sin(t * 0.5) * 0.5 + 0.5;
+          uniforms.uPointer.value.x += (pointer.x - uniforms.uPointer.value.x) * 0.05;
+          uniforms.uPointer.value.y += (pointer.y - uniforms.uPointer.value.y) * 0.05;
+          uniforms.uOpacity.value += (1 - uniforms.uOpacity.value) * 0.04;
+          composer.render();
+          frameId = requestAnimationFrame(animate);
+        };
+        animate();
       };
-      animate();
 
-      // Resize
-      const handleResize = () => {
+      const onResize = () => {
         const w = mount.clientWidth || window.innerWidth;
         const h = mount.clientHeight || window.innerHeight;
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
         composer.setSize(w, h);
+        fitPlane();
       };
-      window.addEventListener("resize", handleResize);
-      cleanupFns.push(() => window.removeEventListener("resize", handleResize));
+      window.addEventListener("resize", onResize);
+      cleanup.push(() => window.removeEventListener("resize", onResize));
 
-      cleanupFns.push(() => {
-        meshes.forEach((m) => { m.geometry.dispose(); m.material.dispose(); });
-        orb.geometry.dispose();
-        orb.material.dispose();
+      cleanup.push(() => {
+        geometry.dispose();
+        material.dispose();
+        map.dispose();
+        depth.dispose();
       });
     } catch (err) {
-      // WebGL not available -> gracefully show gradient fallback (parent has hero-bg)
       // eslint-disable-next-line no-console
-      console.error("ThreeHero init failed:", err);
+      console.error("ShaderHero init failed:", err);
     }
 
     return () => {
+      disposed = true;
       if (frameId) cancelAnimationFrame(frameId);
-      cleanupFns.forEach((fn) => fn());
-      if (composer) composer.dispose && composer.dispose();
+      cleanup.forEach((fn) => fn());
+      if (composer && composer.dispose) composer.dispose();
       if (renderer) {
         renderer.dispose();
         if (renderer.domElement && renderer.domElement.parentNode) {

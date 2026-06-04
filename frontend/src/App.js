@@ -1,6 +1,7 @@
 import "@/App.css";
 import React from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/layout/Navbar";
@@ -43,12 +44,14 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-        <Toaster position="top-center" richColors />
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="ddd-theme">
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+          <Toaster position="top-center" richColors />
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
