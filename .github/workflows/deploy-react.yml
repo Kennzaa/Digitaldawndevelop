@@ -1,5 +1,5 @@
 name: Deploy React App
-# rebuild
+
 on:
   push:
     branches: [ main ]
@@ -15,14 +15,16 @@ jobs:
         with:
           node-version: '16'
 
-18    - name: Install & Build
-19      env:
-20        REACT_APP_BACKEND_URL: https://gradient-showcase-18.preview.emergentagent.com 
-          run: |
-22          cd frontend
-23          npm install --legacy-peer-deps
-24          npm install ajv-keywords@3.5.2 ajv@6.12.6 --legacy-peer-deps
-25          CI=false npm run build
+      - name: Install & Build
+        env:
+          REACT_APP_BACKEND_URL: https://gradient-showcase-18.preview.emergentagent.com
+        run: |
+          cd frontend
+          rm -rf node_modules build
+          npm install --legacy-peer-deps
+          npm install ajv-keywords@3.5.2 ajv@6.12.6 --legacy-peer-deps
+          CI=false npm run build
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
