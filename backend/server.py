@@ -237,18 +237,14 @@ async def update_order_status(
         raise HTTPException(status_code=404, detail="Order not found")
     return Order(**parse_dates(serialize_doc(result)))
 
-
-# Include router
-app.include_router(api_router)
-
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
+    allow_origins=os.environ.get("CORS_ORIGINS", "http://localhost:3000").split(","),
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.include_router(api_router)
 
 @app.on_event("startup")
 async def seed_admin():
