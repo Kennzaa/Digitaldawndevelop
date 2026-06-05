@@ -29,6 +29,9 @@ from auth import (
     require_admin,
 )
 
+import resend
+resend.api_key = os.environ.get("RESEND_API_KEY", "re_csE4VsvR_3SeeG98ao6Xyu5W48xYxhbkV")
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
@@ -236,6 +239,106 @@ async def update_order_status(
     if not result:
         raise HTTPException(status_code=404, detail="Order not found")
     return Order(**parse_dates(serialize_doc(result)))
+# ---------------- Routes: guest verification ----------------
+
+@api_router.post("/guest/request-verification")
+async def request_verification(payload: GuestVerifyRequest):
+    email = payload.email.lower().strip()
+    
+    # Buat token unik
+    token = str(uuid.uuid4())
+    expires_at = datetime.now(timezone.utc).replace(
+        microsecond=0
+    ).isoformat()
+    
+    # Simpan ke MongoDB
+    await db.guest_verifications.insert_one({
+        "email": email,
+        "token": token,
+        "verified": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    
+    # Kirim email via Resend
+    verify_url = f"https://digitaldawndevelop.xyz/verify?token={token}"
+    resend.Emails.send({
+        "from": "noreply@digitaldawndevelop.xyz",
+        "to": email,
+        "subject": "Verifikasi Email Kamu",
+        "html": f"""
+        <h2>Halo!</h2>
+        <p>Klik tombol di bawah untuk memverifikasi email kamu dan melanjutkan pemesanan:</p>
+        <a href="{verify_url}" style="
+            background:#4F46E5;
+            color:white;
+            padding:12px 24px;
+            border-radius:8px;
+            text-decoration:none;
+            display:inline-block;
+            margin:16px 0;
+        ">Verifikasi Email</a>
+        <p>Link ini hanya berlaku sekali.</p>
+        <p>Jika kamu tidak merasa meminta ini, abaikan email ini.</p>
+        """
+    })
+    
+    return {"ok": True, "message": "Email verifikasi telah dikirim"}
+
+
+@api_router.get("/guest/verify/{token}")
+async def verify_guest_token(token: str):
+    record = await db.guest_verifications.find_one({"token": token})
+    
+    if not record:
+        raise HTTPException(status_code=404, detail="Token tidak valid")
+    
+    if record.get("verified"):
+        raise HTTPException(status_code=400, detail="Token sudah digunakan")
+    
+    # Tandai sebagai verified
+    await db.guest_verifications.update_one(
+        {"token": token},
+        {"$set": {"verified": True}}
+    )
+    
+    # Redirect ke halaman order dengan email sebagai query param
+    email = record["email"]
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(
+        url=f"https://digitaldawndevelop.xyz/order?email={email}&verified=true"
+    )
+
+
+@api_router.post("/orders/guest")
+async def create_guest_order(payload: GuestOrderRequest):
+    email = payload.email.lower().strip()
+    
+    # Cek apakah email sudah diverifikasi
+    verified = await db.guest_verifications.find_one({
+        "email": email,
+        "verified": True
+    })
+    
+    if not verified:
+        raise HTTPException(
+            status_code=403,
+            detail="Email belum diverifikasi. Silakan verifikasi email terlebih dahulu."
+        )
+    
+    # Simpan order
+    order_doc = {
+        "id": str(uuid.uuid4()),
+        "email": email,
+        "name": payload.name.strip(),
+        "phone": payload.phone,
+        "items": [item.dict() for item in payload.items],
+        "notes": payload.notes,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.orders.insert_one(order_doc)
+    
+    return {"ok": True, "order_id": order_doc["id"], "message": "Pesanan berhasil dibuat!"}
 
 app.add_middleware(
     CORSMiddleware,
