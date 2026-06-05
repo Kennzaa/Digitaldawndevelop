@@ -33,7 +33,7 @@ from pydantic import BaseModel
 class GuestVerifyRequest(BaseModel):
     email: str
 import resend
-resend.api_key = os.environ.get("RESEND_API_KEY", "re_csE4VsvR_3SeeG98ao6Xyu5W48xYxhbkV")
+resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
