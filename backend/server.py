@@ -29,9 +29,23 @@ from auth import (
     require_admin,
 )
 from pydantic import BaseModel
-
+from typing import List
+    
+class OrderItem(BaseModel):
+        name: str
+        quantity: int
+        price: float
+    
 class GuestVerifyRequest(BaseModel):
-    email: str
+       email: str
+   
+class GuestOrderRequest(BaseModel):
+        email: str
+        name: str
+       phone: str
+        items: List[OrderItem]
+        notes: str = ""
+   
 import resend
 resend.api_key = os.environ.get("RESEND_API_KEY", "")
 
