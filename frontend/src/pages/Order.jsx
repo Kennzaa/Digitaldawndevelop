@@ -58,22 +58,26 @@ export default function Order() {
   const waLink = useMemo(() => `https://wa.me/${CONTACT.whatsappIntl}?text=${encodeURIComponent(buildMessage())}`, [buildMessage]);
   const mailLink = useMemo(() => `mailto:${CONTACT.email}?subject=${encodeURIComponent("Order Baru - " + (form.name || "Customer"))}&body=${encodeURIComponent(buildMessage())}`, [buildMessage, form.name]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (selected.length === 0) { toast.error("Pilih minimal satu layanan dulu ya."); return; }
-    if (!form.name.trim() || !form.email.trim()) { toast.error("Nama dan email wajib diisi."); return; }
-    setStatus("loading");
-    try {
-      await api.post("/orders", {
-        name: form.name.trim(),
-        email: form.email.trim(),
-        phone: form.phone,
-        company: form.company,
-        services: selectedServices.map((s) => s.title),
-        budget: form.budget,
-        deadline: form.deadline,
-        message: form.message,
-      });
+   const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (selected.length === 0) { toast.error("Pilih minimal satu layanan dulu ya."); return; }
+        if (!form.name.trim() || !form.email.trim()) { toast.error("Nama dan email wajib diisi."); return; }
+        
+        if (!isAuthenticated) {
+            toast.error("Silakan login atau daftar terlebih dahulu.");
+            navigate("/login");
+            return;
+        }
+        
+        setStatus("loading");
+        try {
+            await api.post("/orders", {
+                name: form.name.trim(),
+                email: form.email.trim(),
+                phone: form.phone,
+                deadline: form.deadline,
+                message: form.message,
+      }); 
       setStatus("success");
       burstConfetti();
       toast.success("Pesanan berhasil dikirim!");
