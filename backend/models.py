@@ -68,3 +68,19 @@ class Order(BaseModel):
     message: str = ""
     status: str = "new"
     created_at: datetime = Field(default_factory=_now)
+# Guest Email Verification
+class GuestVerifyRequest(BaseModel):
+    email: str
+
+class OrderItem(BaseModel):
+    service_id: str
+    service_name: str
+    quantity: int = 1
+    notes: Optional[str] = None
+
+class GuestOrderRequest(BaseModel):
+    email: str
+    name: str
+    phone: Optional[str] = None
+    items: List[OrderItem]
+    notes: Optional[str] = None
