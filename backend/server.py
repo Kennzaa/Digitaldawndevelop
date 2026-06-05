@@ -28,7 +28,10 @@ from auth import (
     get_current_user_optional,
     require_admin,
 )
+from pydantic import BaseModel
 
+class GuestVerifyRequest(BaseModel):
+    email: str
 import resend
 resend.api_key = os.environ.get("RESEND_API_KEY", "re_csE4VsvR_3SeeG98ao6Xyu5W48xYxhbkV")
 
