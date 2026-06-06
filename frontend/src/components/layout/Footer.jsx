@@ -15,7 +15,7 @@ export const Footer = () => {
                 <img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" />
             </span>
             <span className="font-heading font-semibold text-slate-900">Digital Dawn Develop</span>
-        </div>}
+        </div>
           <p className="mt-4 text-sm text-slate-600 leading-relaxed max-w-xs">
             Agency digital yang membantu brand Anda tumbuh: website, konten, reels & banner, WhatsApp bisnis, dan iklan media sosial.
           </p>
