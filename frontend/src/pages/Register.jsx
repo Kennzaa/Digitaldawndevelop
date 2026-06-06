@@ -47,13 +47,11 @@ export default function Register() {
       </div>
 
       <div className="flex items-center justify-center px-6 py-16 bg-white order-0 lg:order-2">
-        <div className="w-full max-w-md">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden"><img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" /></span>
+          <div className="w-full max-w-md">
+        <Link to="/" className="inline-flex items-center gap-2 mb-8">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden"><img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" /></span>
             <span className="font-heading font-semibold text-slate-900">Digital Dawn Develop</span>
-          </Link>
-          <h1 className="font-heading text-3xl font-semibold text-slate-900">Buat akun baru</h1>
-          <p className="mt-2 text-slate-600">Sudah punya akun? <Link to="/login" className="text-blue-600 font-medium hover:underline" data-testid="register-to-login-link">Masuk di sini</Link></p>
-
+        </Link>
           <form onSubmit={submit} className="mt-8 space-y-5" data-testid="register-form">
             <div>
               <Label htmlFor="name">Nama Lengkap</Label>
