@@ -30,8 +30,8 @@ export const Navbar = () => {
         <nav className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" data-testid="nav-logo" className="flex items-center gap-2 group">
            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden">
-    <img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" />
-</span>
+               <img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" />
+           </span>
             <span className="font-heading font-semibold text-slate-900 leading-tight">
               Digital Dawn<span className="text-blue-600">.</span>
             </span>
