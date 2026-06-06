@@ -38,7 +38,7 @@ export default function Login() {
       <div className="flex items-center justify-center px-6 py-16 bg-white">
         <div className="w-full max-w-md">
           <Link to="/" className="inline-flex items-center gap-2 mb-8">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl cta-gradient shadow-md"><Sparkles className="h-5 w-5 text-white" /></span>
+           <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden"><img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" /></span>
             <span className="font-heading font-semibold text-slate-900">Digital Dawn Develop</span>
           </Link>
           <h1 className="font-heading text-3xl font-semibold text-slate-900">Masuk ke akun Anda</h1>
