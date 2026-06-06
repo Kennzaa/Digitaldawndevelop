@@ -30,7 +30,7 @@ export default function Register() {
     }
   };
 
-  return (
+        return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="hidden lg:block relative hero-bg overflow-hidden order-1">
         <div className="absolute inset-0 scanline-overlay" />
