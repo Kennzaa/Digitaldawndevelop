@@ -10,13 +10,12 @@ export const Footer = () => {
     <footer className="relative mt-24 border-t border-blue-100 bg-white" id="contact-footer">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-14 grid gap-10 md:grid-cols-3">
         <div>
-          <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden">
-    <img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" />
-</span>
-            </span>
+                <img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" />
+            /span>
             <span className="font-heading font-semibold text-slate-900">Digital Dawn Develop</span>
-          </div>
+        </div>
           <p className="mt-4 text-sm text-slate-600 leading-relaxed max-w-xs">
             Agency digital yang membantu brand Anda tumbuh: website, konten, reels & banner, WhatsApp bisnis, dan iklan media sosial.
           </p>
