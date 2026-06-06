@@ -36,8 +36,9 @@ export default function Register() {
         <div className="absolute inset-0 scanline-overlay" />
         <div className="absolute inset-0 flex items-center justify-center p-12">
           <div className="glass rounded-[28px] p-10 max-w-md">
-            <div className="h-16 w-16 rounded-2xl cta-gradient flex items-center justify-center shadow-lg animate-float mb-6">
-              <Sparkles className="h-8 w-8 text-white" />
+            <div className="h-16 w-16 rounded-2xl overflow-hidden flex items-center justify-center mb-6">
+               <img src="/assets/logo.png" alt="Logo" className="h-16 w-16 object-cover" />
+             </div>
             </div>
             <h2 className="font-heading text-2xl font-semibold text-slate-900">Mulai project digital Anda</h2>
             <p className="mt-3 text-slate-600">Buat akun untuk memesan layanan, melacak status pesanan, dan berkomunikasi langsung dengan tim kami.</p>
@@ -47,8 +48,7 @@ export default function Register() {
 
       <div className="flex items-center justify-center px-6 py-16 bg-white order-0 lg:order-2">
         <div className="w-full max-w-md">
-          <Link to="/" className="inline-flex items-center gap-2 mb-8">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl cta-gradient shadow-md"><Sparkles className="h-5 w-5 text-white" /></span>
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden"><img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" /></span>
             <span className="font-heading font-semibold text-slate-900">Digital Dawn Develop</span>
           </Link>
           <h1 className="font-heading text-3xl font-semibold text-slate-900">Buat akun baru</h1>
