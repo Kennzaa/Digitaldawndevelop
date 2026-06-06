@@ -11,8 +11,9 @@ export const Footer = () => {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-14 grid gap-10 md:grid-cols-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl cta-gradient shadow-md">
-              <Sparkles className="h-5 w-5 text-white" />
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden">
+    <img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" />
+</span>
             </span>
             <span className="font-heading font-semibold text-slate-900">Digital Dawn Develop</span>
           </div>
