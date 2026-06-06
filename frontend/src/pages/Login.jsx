@@ -71,9 +71,9 @@ export default function Login() {
         <div className="absolute inset-0 scanline-overlay" />
         <div className="absolute inset-0 flex items-center justify-center p-12">
           <div className="glass rounded-[28px] p-10 max-w-md">
-            <div className="h-16 w-16 rounded-2xl cta-gradient flex items-center justify-center shadow-lg animate-float mb-6">
-              <Sparkles className="h-8 w-8 text-white" />
-            </div>
+           <div className="h-16 w-16 rounded-2xl overflow-hidden flex items-center justify-center mb-6">
+              <img src="/assets/logo.png" alt="Logo" className="h-16 w-16 object-cover" />
+           </div>
             <h2 className="font-heading text-2xl font-semibold text-slate-900">Selamat datang kembali</h2>
             <p className="mt-3 text-slate-600">Kelola pesanan layanan digital Anda dengan mudah — pantau status, dan lanjutkan brief kapan saja.</p>
           </div>
