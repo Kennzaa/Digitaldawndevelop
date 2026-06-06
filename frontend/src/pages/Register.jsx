@@ -38,14 +38,12 @@ export default function Register() {
           <div className="glass rounded-[28px] p-10 max-w-md">
             <div className="h-16 w-16 rounded-2xl overflow-hidden flex items-center justify-center mb-6">
                <img src="/assets/logo.png" alt="Logo" className="h-16 w-16 object-cover" />
-             </div>
             </div>
             <h2 className="font-heading text-2xl font-semibold text-slate-900">Mulai project digital Anda</h2>
             <p className="mt-3 text-slate-600">Buat akun untuk memesan layanan, melacak status pesanan, dan berkomunikasi langsung dengan tim kami.</p>
           </div>
         </div>
       </div>
-
       <div className="flex items-center justify-center px-6 py-16 bg-white order-0 lg:order-2">
           <div className="w-full max-w-md">
               <Link to="/" className="inline-flex items-center gap-2 mb-8">
