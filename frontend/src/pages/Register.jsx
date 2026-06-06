@@ -48,10 +48,10 @@ export default function Register() {
 
       <div className="flex items-center justify-center px-6 py-16 bg-white order-0 lg:order-2">
           <div className="w-full max-w-md">
-        <Link to="/" className="inline-flex items-center gap-2 mb-8">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden"><img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" /></span>
-            <span className="font-heading font-semibold text-slate-900">Digital Dawn Develop</span>
-        </Link>
+              <Link to="/" className="inline-flex items-center gap-2 mb-8">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl overflow-hidden"><img src="/assets/logo.png" alt="Logo" className="h-9 w-9 object-cover" /></span>
+                  <span className="font-heading font-semibold text-slate-900">Digital Dawn Develop</span>
+              </Link>
           <form onSubmit={submit} className="mt-8 space-y-5" data-testid="register-form">
             <div>
               <Label htmlFor="name">Nama Lengkap</Label>
