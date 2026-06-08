@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ThreeHero from "@/components/hero/ThreeHero";
+import GeometricHero from "@/components/hero/GeometricHero";
 import ScanlineOverlay from "@/components/hero/ScanlineOverlay";
 import ServiceCard from "@/components/services/ServiceCard";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export default function Home() {
     <div>
       {/* HERO */}
       <section className="relative min-h-[92vh] hero-dark-bg overflow-hidden flex items-center justify-center">
-        <ThreeHero />
+        <GeometricHero />
         <ScanlineOverlay />
         <div className="pointer-events-none absolute inset-0 noise-overlay z-[6]" />
 
