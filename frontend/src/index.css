@@ -119,8 +119,8 @@ code {
     }
     .hero-dark-bg {
         background:
-            radial-gradient(1000px 600px at 20% 12%, rgba(37, 99, 235, 0.35), transparent 55%),
-            radial-gradient(900px 520px at 80% 18%, rgba(14, 165, 233, 0.22), transparent 60%),
+            radial-gradient(1000px 600px at 20% 12%, rgba(0, 0, 0, 0.35), transparent 55%),
+            radial-gradient(900px 520px at 80% 18%, rgba(2, 11, 15, 0.22), transparent 60%),
             linear-gradient(180deg, #050B1A 0%, #07142E 50%, #050B1A 100%);
     }
     .section-accent-bg {
