@@ -278,10 +278,10 @@ body {
 .dark .bg-red-50 { background-color: rgba(220, 38, 38, 0.16) !important; }
 .dark .text-red-700 { color: #FCA5A5 !important; }
 
-.dark .border-blue-100 { border-color: rgba(120, 160, 255, 0.16) !important; }
-.dark .border-blue-200 { border-color: rgba(120, 160, 255, 0.22) !important; }
-.dark .border-blue-50 { border-color: rgba(120, 160, 255, 0.12) !important; }
-.dark .border-green-200 { border-color: rgba(22, 163, 74, 0.3) !important; }
+.dark .border-blue-100 { border-color: rgba(0, 0, 0, 0.16) !important; }
+.dark .border-blue-200 { border-color: rgba(0, 0, 0, 0.22) !important; }
+.dark .border-blue-50 { border-color: rgba(0, 0, 0, 0.12) !important; }
+.dark .border-green-200 { border-color: rgba(0, 0, 0, 0.3) !important; }
 
 .dark ::-webkit-scrollbar-track { background: #0A1730; }
 .dark ::selection { background: rgba(37, 99, 235, 0.35); color: #fff; }
