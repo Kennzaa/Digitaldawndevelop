@@ -262,13 +262,13 @@ body {
 .dark .text-slate-500 { color: #8FA4C6 !important; }
 .dark .text-slate-400 { color: #7E93B5 !important; }
 
-.dark .bg-blue-50 { background-color: rgba(0, 0, 0, 0.14) !important; }
-.dark .bg-blue-50\/50 { background-color: rgba(0, 0, 0, 0.1) !important; }
-.dark .bg-blue-50\/60 { background-color: rgba(0, 0, 0, 0.12) !important; }
-.dark .bg-blue-50\/70 { background-color: rgba(0, 0, 0, 0.14) !important; }
-.dark .text-blue-700 { color: #93C5FD !important; }
-.dark .text-blue-600 { color: #7FB2FF !important; }
-.dark .text-blue-300 { color: #4f70a8 !important; }
+.dark .bg-blue-50 { background-color: rgba(37, 99, 235, 0.14) !important; }
+.dark .bg-blue-50\/50 { background-color: rgba(37, 99, 235, 0.10) !important; }
+.dark .bg-blue-50\/60 { background-color: rgba(37, 99, 235, 0.12) !important; }
+.dark .bg-blue-50\/70 { background-color: rgba(37, 99, 235, 0.14) !important; }
+.dark .text-blue-700 { color: #eb93fd !important; }
+.dark .text-blue-600 { color: #e060ba !important; }
+.dark .text-blue-300 { color: #f56ac0 !important; }
 
 .dark .bg-green-50 { background-color: rgba(22, 163, 74, 0.16) !important; }
 .dark .text-green-700 { color: #6EE7A8 !important; }
