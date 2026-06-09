@@ -125,7 +125,7 @@ code {
     }
     .section-accent-bg {
         background:
-            radial-gradient(700px 420px at 50% 0%, rgba(8, 8, 8, 0.16), transparent 60%),
+            radial-gradient(700px 420px at 50% 0%, rgba(74, 113, 221, 0.16), transparent 60%),
             linear-gradient(180deg, #F7FAFF 0%, #FFFFFF 100%);
     }
 
@@ -240,7 +240,7 @@ body {
 }
 .dark .section-accent-bg {
     background:
-        radial-gradient(700px 420px at 50% 0%, rgb(2, 5, 7), transparent 60%),
+        radial-gradient(700px 420px at 50% 0%, rgb(2, 21, 34), transparent 60%),
         linear-gradient(180deg, #050B1A 0%, #07142E 100%);
 }
 .dark .hero-bg {
@@ -263,9 +263,9 @@ body {
 .dark .text-slate-400 { color: #7E93B5 !important; }
 
 .dark .bg-blue-50 { background-color: rgba(112, 23, 75, 0.589) !important; }
-.dark .bg-blue-50\/50 { background-color: rgba(112, 23, 75, 0.589) !important; }
-.dark .bg-blue-50\/60 { background-color: rgba(112, 23, 75, 0.589) !important; }
-.dark .bg-blue-50\/70 { background-color: rgba(112, 23, 75, 0.589) !important; }
+.dark .bg-blue-50\/50 { background-color: rgba(241, 137, 198, 0.836) !important; }
+.dark .bg-blue-50\/60 { background-color: rgba(241, 137, 198, 0.836) !important; }
+.dark .bg-blue-50\/70 { background-color: rgba(241, 137, 198, 0.836) !important; }
 .dark .text-blue-700 { color: #eb93fd !important; }
 .dark .text-blue-600 { color: #e060ba !important; }
 .dark .text-blue-300 { color: #f56ac0 !important; }
