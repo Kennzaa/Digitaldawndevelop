@@ -102,7 +102,7 @@ code {
     }
 
     .cta-gradient {
-        background: linear-gradient(135deg, rgb(170, 108, 175) 0%, rgb(200, 103, 187) 100%);
+        background: linear-gradient(135deg, rgb(89, 22, 94) 0%, rgb(172, 59, 225) 100%);
     }
     .text-gradient-blue {
         background: linear-gradient(135deg, #f3b3e3 0%, #ddb9da 60%, #8b84e2 100%);
