@@ -251,7 +251,7 @@ body {
 }
 
 /* Tailwind literal-color overrides for dark mode (specificity-based) */
-.dark .bg-white { background-color: #1a2d47 !important; }
+.dark .bg-white { background-color: #050b1a !important; }
 .dark .bg-white\/70 { background-color: rgba(74, 113, 221, 0.16) !important; }
 .dark .bg-white\/80 { background-color: rgba(74, 113, 221, 0.16) !important; }
 .dark .bg-white\/62 { background-color: rgba(74, 113, 221, 0.16) !important; }
