@@ -251,10 +251,10 @@ body {
 }
 
 /* Tailwind literal-color overrides for dark mode (specificity-based) */
-.dark .bg-white { background-color: #8d7f7f93 !important; }
-.dark .bg-white\/70 { background-color: rgba(255, 255, 255, 0.08) !important; }
-.dark .bg-white\/80 { background-color: rgba(255, 255, 255, 0.08) !important; }
-.dark .bg-white\/62 { background-color: rgba(255, 255, 255, 0.06) !important; }
+.dark .bg-white { background-color: #1a1e4193 !important; }
+.dark .bg-white\/70 { background-color: rgba(74, 113, 221, 0.16) !important; }
+.dark .bg-white\/80 { background-color: rgba(74, 113, 221, 0.16) !important; }
+.dark .bg-white\/62 { background-color: rgba(74, 113, 221, 0.16) !important; }
 
 .dark .text-slate-900 { color: #F1F6FF !important; }
 .dark .text-slate-700 { color: #D7E2F5 !important; }
