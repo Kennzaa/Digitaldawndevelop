@@ -252,9 +252,9 @@ body {
 
 /* Tailwind literal-color overrides for dark mode (specificity-based) */
 .dark .bg-white { background-color: #6e0d8b !important; }
-.dark .bg-white\/70 { background-color: rgba(172, 48, 209, 0.08) !important; }
-.dark .bg-white\/80 { background-color: rgba(172, 48, 209, 0.08) !important; }
-.dark .bg-white\/62 { background-color: rgba(172, 48, 209, 0.08) !important; }
+.dark .bg-white\/70 { background-color: rgba(255, 255, 255, 0.08) !important; }
+.dark .bg-white\/80 { background-color: rgba(255, 255, 255, 0.08) !important; }
+.dark .bg-white\/62 { background-color: rgba(255, 255, 255, 0.06) !important; }
 
 .dark .text-slate-900 { color: #F1F6FF !important; }
 .dark .text-slate-700 { color: #D7E2F5 !important; }
